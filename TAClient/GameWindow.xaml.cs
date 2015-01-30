@@ -130,36 +130,28 @@ namespace TAClient
         {
             if (ChatBox.Dispatcher.CheckAccess())
             {
-                if (ChatBox.Text == "")
-                {
-                    ChatBox.Text = text;
-                    ChatBox.ScrollToEnd();
-                }
-                else
-                {
-                    ChatBox.Text += System.Environment.NewLine + text;
-                    ChatBox.ScrollToEnd();
-                }
+                PrintMessageInner(text);
             }
             else
             {
-                ChatBox.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    if (ChatBox.Text == "")
-                    {
-                        ChatBox.Text = text;
-                        ChatBox.ScrollToEnd();
-
-                    }
-                    else
-                    {
-                        ChatBox.Text += System.Environment.NewLine + text;
-                        ChatBox.ScrollToEnd();
-
-                    }
-                }));
+                ChatBox.Dispatcher.BeginInvoke(new Action(() => PrintMessageInner(text)));
             }
+        }
 
+        private void PrintMessageInner(string text)
+        {
+            if (ChatBox.Text == "")
+            {
+                ChatBox.Text = text;
+                ChatBox.ScrollToEnd();
+
+            }
+            else
+            {
+                ChatBox.Text += System.Environment.NewLine + text;
+                ChatBox.ScrollToEnd();
+
+            }
         }
 
         private void Window_Closed_1(object sender, EventArgs e)

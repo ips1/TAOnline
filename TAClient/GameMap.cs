@@ -17,6 +17,10 @@ using TAGame;
 
 namespace TAClient
 {
+    struct LineCoordinates
+    {
+        public double startX, startY, endX, endY;
+    }
 
     /// <summary>
     /// Class representing visualisation of the game map
@@ -25,29 +29,31 @@ namespace TAClient
     class GameMap
     {
         // Width of one field on the map (before transformation, in the grid layout)
-        static readonly int fieldwidth = 60;
+        static readonly int fieldWidth = 60;
         // Height of one field on the map (before transformation, in the grid layout)
-        static readonly int fieldheight = 52;
+        static readonly int fieldHeight = 52;
         // Size of dot representing non-city vertex on the map
-        static readonly int pointsize = 0;
+        static readonly int pointSize = 0;
+        // Size of dot for base selection
+        static readonly int baseSelectionPointSize = 15;
         // Size of dot representing city vertex on the map
-        static readonly int citysize = 30;
+        static readonly int citySize = 30;
         // Size of dot representing starting vertex on the map
-        static readonly int basesize = 15;
+        static readonly int baseSize = 15;
         // Shift of the whole graph from the upper border of the picture
-        static readonly int topshift = 16;
+        static readonly int topShift = 16;
         // Shift of the whole graph from the left border of the picture
-        static readonly int leftshift = -118;
+        static readonly int leftShift = -118;
         // Scale in which the height of the graph is reduced after transformation
-        static readonly double heightscale = 0.85;
+        static readonly double heightScale = 0.85;
         // Thickness of normal edges
-        static readonly int normalthickness = 1;
+        static readonly int normalThickness = 1;
         // Thickness of double edges
-        static readonly int doublethickness = 3;
+        static readonly int doubleThickness = 3;
         // Thickness of rails
-        static readonly int railthickness = 4;
+        static readonly int railThickness = 4;
         // Thickness of selection highlight
-        static readonly int highlightthickness = 5;
+        static readonly int highlightThickness = 5;
 
         private Canvas gameCanvas;
 
@@ -122,121 +128,13 @@ namespace TAClient
         {
             if (loaded) return;
 
-            int currentpointsize = pointsize;
-
-            if (game.IsPositionSelection())
-            {
-                currentpointsize = 15;
-            }
+            List<Vertex> vertices = game.Plan.GetAllVertices().ToList();
 
             // Drawing all edges
-            foreach (Vertex v in game.Plan.GetAllVertices())
-            {
-                if (v.East != null)
-                {
-                    int thickness = normalthickness;
-                    if (v.East.IsDouble) thickness = doublethickness;
-                    Brush b = Brushes.Black;
-                    if (v.East.HasRail)
-                    {
-                        b = Brushes.Red;
-                        thickness = railthickness;
-                    }
-                    double x1 = pointsize / 2 + OrigX(v.X * fieldwidth, v.Y * fieldheight) + leftshift;
-                    double x2 = pointsize / 2 + OrigX((v.X + 1) * fieldwidth, v.Y * fieldheight) + leftshift;
-                    double y1 = topshift + pointsize / 2 + OrigY(v.X * fieldwidth, v.Y * fieldheight) * heightscale;
-                    double y2 = topshift + pointsize / 2 + OrigY((v.X + 1) * fieldwidth, v.Y * fieldheight) * heightscale;
-                    Line edgeLine = new System.Windows.Shapes.Line() { Stroke = b, StrokeThickness = thickness, X1 = x1, X2 = x2, Y1 = y1, Y2 = y2 };
-                    edgeLine.Tag = v.East;
-                    edgeLine.MouseEnter += MouseOverEdge;
-                    edgeLine.MouseLeave += MouseOutEdge;
-                    edgeLine.MouseUp += MouseClickEdge;
-                    gameCanvas.Children.Add(edgeLine);
-                }
-
-                if (v.NorthWest != null)
-                {
-                    int thickness = normalthickness;
-                    if (v.NorthWest.IsDouble) thickness = doublethickness;
-                    Brush b = Brushes.Black;
-                    if (v.NorthWest.HasRail)
-                    {
-                        b = Brushes.Red;
-                        thickness = railthickness;
-                    }
-                    double x1 = pointsize / 2 + OrigX(v.X * fieldwidth, v.Y * fieldheight) + leftshift;
-                    double x2 = pointsize / 2 + OrigX(v.X * fieldwidth, (v.Y - 1) * fieldheight) + leftshift;
-                    double y1 = topshift + pointsize / 2 + OrigY(v.X * fieldwidth, v.Y * fieldheight) * heightscale;
-                    double y2 = topshift + pointsize / 2 + OrigY(v.X * fieldwidth, (v.Y - 1) * fieldheight) * heightscale;
-                    Line edgeLine = new System.Windows.Shapes.Line() { Stroke = b, StrokeThickness = thickness, X1 = x1, X2 = x2, Y1 = y1, Y2 = y2 };
-                    edgeLine.Tag = v.NorthWest;
-                    edgeLine.MouseEnter += MouseOverEdge;
-                    edgeLine.MouseLeave += MouseOutEdge;
-                    edgeLine.MouseUp += MouseClickEdge;
-                    gameCanvas.Children.Add(edgeLine);
-                }
-
-                if (v.NorthEast != null)
-                {
-                    int thickness = normalthickness;
-                    if (v.NorthEast.IsDouble) thickness = doublethickness;
-                    Brush b = Brushes.Black;
-                    if (v.NorthEast.HasRail)
-                    {
-                        b = Brushes.Red;
-                        thickness = railthickness;
-                    }
-                    double x1 = pointsize / 2 + OrigX(v.X * fieldwidth, v.Y * fieldheight) + leftshift;
-                    double x2 = pointsize / 2 + OrigX((v.X + 1) * fieldwidth, (v.Y - 1) * fieldheight) + leftshift;
-                    double y1 = topshift + pointsize / 2 + OrigY(v.X * fieldwidth, v.Y * fieldheight) * heightscale;
-                    double y2 = topshift + pointsize / 2 + OrigY((v.X + 1) * fieldwidth, (v.Y - 1) * fieldheight) * heightscale;
-                    Line edgeLine = new System.Windows.Shapes.Line() { Stroke = b, StrokeThickness = thickness, X1 = x1, X2 = x2, Y1 = y1, Y2 = y2 };
-                    edgeLine.Tag = v.NorthEast;
-                    edgeLine.MouseEnter += MouseOverEdge;
-                    edgeLine.MouseLeave += MouseOutEdge;
-                    edgeLine.MouseUp += MouseClickEdge;
-                    gameCanvas.Children.Add(edgeLine);
-                }
-            }
+            vertices.ForEach(DrawEdgesForVertex);
 
             // Drawing all the vertices
-            foreach (Vertex v in game.Plan.GetAllVertices())
-            {
-
-                City c = v.CityOn;
-                Brush br = Brushes.Black;
-                int size = currentpointsize;
-
-                // If there is city on the vertex, we select a color according to the city
-                if (c != null)
-                {
-                    size = citysize;
-                    switch (c.Color)
-                    {
-                        case CityColor.BLUE: br = Brushes.LightBlue; break;
-                        case CityColor.GREEN: br = Brushes.LightGreen; break;
-                        case CityColor.ORANGE: br = Brushes.Orange; break;
-                        case CityColor.RED: br = Brushes.Salmon; break;
-                        case CityColor.YELLOW: br = Brushes.LightYellow; break;
-                    }
-                }
-
-                Ellipse vertexEllipse = new Ellipse() { Fill = br, Width = size, Height = size, Stroke = Brushes.Black, StrokeThickness = 1 };
-                vertexEllipse.Tag = v;
-                // Associating event handlers for actions with vertices
-                vertexEllipse.MouseEnter += MouseOverVertex;
-                vertexEllipse.MouseLeave += MouseOutVertex;
-                vertexEllipse.MouseUp += MouseClickVertex;
-                int difference = (size - pointsize) / 2;
-                Canvas.SetTop(vertexEllipse, OrigY(v.X * fieldwidth, v.Y * fieldheight) * heightscale + topshift - difference);
-                Canvas.SetLeft(vertexEllipse, OrigX(v.X * fieldwidth, v.Y * fieldheight) + leftshift - difference);
-                gameCanvas.Children.Add(vertexEllipse);
-
-                // Vertex is a starting base of a player - we add a mark
-                AddBase(v);
-
-
-            }
+            vertices.ForEach(DrawVertex);
 
             loaded = true;
         }
@@ -252,13 +150,13 @@ namespace TAClient
                 if (!(uie is Line)) continue;
                 Line l = (Line)uie;
                 Edge e = (Edge)(l.Tag);
-                int thickness = normalthickness;
-                if (e.IsDouble) thickness = doublethickness;
+                int thickness = normalThickness;
+                if (e.IsDouble) thickness = doubleThickness;
                 Brush b = Brushes.Black;
                 if (e.HasRail)
                 {
                     b = Brushes.Red;
-                    thickness = railthickness;
+                    thickness = railThickness;
                 }
                 l.Stroke = b;
                 l.StrokeThickness = thickness;
@@ -276,11 +174,11 @@ namespace TAClient
             if (p != null)
             {
                 Brush b = synchronizer.GetClient(p.Id).Color;
-                Ellipse baseEllipse = new Ellipse() { Fill = b, Width = basesize, Height = basesize, Stroke = Brushes.Black, StrokeThickness = 1 };
+                Ellipse baseEllipse = new Ellipse() { Fill = b, Width = baseSize, Height = baseSize, Stroke = Brushes.Black, StrokeThickness = 1 };
 
-                int diff = basesize / 2;
-                Canvas.SetTop(baseEllipse, OrigY(v.X * fieldwidth, v.Y * fieldheight) * heightscale + topshift - diff);
-                Canvas.SetLeft(baseEllipse, OrigX(v.X * fieldwidth, v.Y * fieldheight) + leftshift - diff);
+                int diff = baseSize / 2;
+                Canvas.SetTop(baseEllipse, OrigY(v.X * fieldWidth, v.Y * fieldHeight) * heightScale + topShift - diff);
+                Canvas.SetLeft(baseEllipse, OrigX(v.X * fieldWidth, v.Y * fieldHeight) + leftShift - diff);
                 gameCanvas.Children.Add(baseEllipse);
 
                 baseEllipse.Tag = v;
@@ -289,6 +187,95 @@ namespace TAClient
 
             }
 
+        }
+
+        private void DrawVertex(Vertex v)
+        {
+            City c = v.CityOn;
+            Brush br = Brushes.Black;
+            int size = game.IsPositionSelection() ? baseSelectionPointSize : pointSize;
+
+            // If there is city on the vertex, we select a color according to the city
+            if (c != null)
+            {
+                size = citySize;
+                switch (c.Color)
+                {
+                    case CityColor.BLUE: br = Brushes.LightBlue; break;
+                    case CityColor.GREEN: br = Brushes.LightGreen; break;
+                    case CityColor.ORANGE: br = Brushes.Orange; break;
+                    case CityColor.RED: br = Brushes.Salmon; break;
+                    case CityColor.YELLOW: br = Brushes.LightYellow; break;
+                }
+            }
+
+            Ellipse vertexEllipse = new Ellipse() { Fill = br, Width = size, Height = size, Stroke = Brushes.Black, StrokeThickness = 1 };
+            vertexEllipse.Tag = v;
+            // Associating event handlers for actions with vertices
+            vertexEllipse.MouseEnter += MouseOverVertex;
+            vertexEllipse.MouseLeave += MouseOutVertex;
+            vertexEllipse.MouseUp += MouseClickVertex;
+            int difference = (size - pointSize) / 2;
+            Canvas.SetTop(vertexEllipse, TopFromVertex(v) * heightScale + topShift - difference);
+            Canvas.SetLeft(vertexEllipse, LeftFromVertex(v) + leftShift - difference);
+            gameCanvas.Children.Add(vertexEllipse);
+
+            // Vertex is a starting base of a player - we add a mark
+            AddBase(v);
+        }
+
+        private void DrawEdgesForVertex(Vertex v)
+        {
+            DrawEdge(v.East);
+            DrawEdge(v.NorthWest);
+            DrawEdge(v.NorthEast);
+        }
+
+        private void DrawEdge(Edge e)
+        {
+            if (e == null) return;
+
+            int thickness = e.IsDouble ? doubleThickness : normalThickness;
+            Brush b = Brushes.Black;
+            if (e.HasRail)
+            {
+                b = Brushes.Red;
+                thickness = railThickness;
+            }
+
+            LineCoordinates coords = CoordsFromEdge(e);
+
+            double x1 = pointSize / 2 + coords.startX + leftShift;
+            double x2 = pointSize / 2 + coords.endX + leftShift;
+            double y1 = topShift + pointSize / 2 + coords.startY * heightScale;
+            double y2 = topShift + pointSize / 2 + coords.endY * heightScale;
+            Line edgeLine = new Line() { Stroke = b, StrokeThickness = thickness, X1 = x1, X2 = x2, Y1 = y1, Y2 = y2 };
+            edgeLine.Tag = e;
+            edgeLine.MouseEnter += MouseOverEdge;
+            edgeLine.MouseLeave += MouseOutEdge;
+            edgeLine.MouseUp += MouseClickEdge;
+            gameCanvas.Children.Add(edgeLine);
+        }
+
+        private double LeftFromVertex(Vertex v)
+        {
+            return OrigX(v.X * fieldWidth, v.Y * fieldHeight);
+        }
+
+        private double TopFromVertex(Vertex v)
+        {
+            return OrigY(v.X * fieldWidth, v.Y * fieldHeight);
+        }
+
+        private LineCoordinates CoordsFromEdge(Edge e)
+        {
+            LineCoordinates coords = new LineCoordinates();
+            coords.startX = LeftFromVertex(e.From);
+            coords.endX = LeftFromVertex(e.To);
+            coords.startY = TopFromVertex(e.From);
+            coords.endY = TopFromVertex(e.To);
+
+            return coords;
         }
 
         /// <summary>
@@ -308,7 +295,7 @@ namespace TAClient
             if (!game.CanPlaceRail(game.GetActivePlayerId(), ed)) return;
 
             l.Stroke = Brushes.DarkCyan;
-            l.StrokeThickness = highlightthickness;
+            l.StrokeThickness = highlightThickness;
         }
 
         /// <summary>
@@ -324,18 +311,18 @@ namespace TAClient
 
             if (ed.HasRail)
             {
-                l.StrokeThickness = railthickness;
+                l.StrokeThickness = railThickness;
                 l.Stroke = Brushes.Red;
             }
             else if (ed.IsDouble)
             {
                 l.Stroke = Brushes.Black;
-                l.StrokeThickness = doublethickness;
+                l.StrokeThickness = doubleThickness;
             }
             else 
             {
                 l.Stroke = Brushes.Black;
-                l.StrokeThickness = normalthickness;
+                l.StrokeThickness = normalThickness;
             }
         }
 
@@ -470,8 +457,8 @@ namespace TAClient
             Border b = new Border() { BorderThickness = new Thickness(2), BorderBrush = Brushes.Black };
             b.Child = label;
 
-            Canvas.SetTop(b, OrigY(v.X * fieldwidth, v.Y * fieldheight) * heightscale + topshift - 25);
-            Canvas.SetLeft(b, OrigX(v.X * fieldwidth, v.Y * fieldheight) + leftshift + 15);
+            Canvas.SetTop(b, OrigY(v.X * fieldWidth, v.Y * fieldHeight) * heightScale + topShift - 25);
+            Canvas.SetLeft(b, OrigX(v.X * fieldWidth, v.Y * fieldHeight) + leftShift + 15);
 
             gameCanvas.Children.Add(b);
             highlights.Add(b);
