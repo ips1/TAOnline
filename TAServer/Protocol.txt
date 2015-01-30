@@ -1,0 +1,67 @@
+﻿ERROR Chybova hlaska
+
+Client -> Server
+READY
+
+Server -> Client
+READY Name
+
+Server -> Client
+-- Before new game
+STARTING
+PLAYERS id1 Player1 id2 Player2 ...
+
+-- Before each round
+NEWROUND
+CITIES id1 City1;City2;City3;...
+...
+CITIES idn City1;City2;City3;...
+
+-- During the game
+Server -> Client
+SETSTART idK X Y
+PLACERAIL idK X Y DIR
+
+Client -> Server
+SETSTART X Y
+PLACERAIL X Y DIR
+
+-- After whole game
+Server -> Client
+FINISHED id1 ... idn
+
+Server -> Client
+QUIT ErrorMessage
+
+Client -> Server
+MSG Text
+
+Server -> Client
+KICKED
+
+Server -> Client
+MSG Name Text
+
+Server -> Client
+CONNECTED id Name
+DISCONNECTED id Name
+
+Handshake process:
+Client -> Server
+HANDSHAKE TAOnline Nick
+Server -> Client
+ACCEPT TAOnline
+Client -> Server
+ACK
+Server -> Client
+ACK id
+CLIST ClientNames
+RLIST ReadyClientNames
+
+
+
+
+Server commands:
+EXIT
+KICK Name
+LIST
